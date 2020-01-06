@@ -36,6 +36,7 @@ namespace TZ.RabbitMQ.Net47Demo
 			RabbitmqConfigOptions rabbitmqOption = new RabbitmqConfigOptions();
 			string queueName = "test_delayqueues";
 			RabbitMQConsumer consumer = new RabbitMQConsumer(rabbitmqOption);
+			consumer.Open();
 			consumer.SetDelayQueuesReceivedAction(delegate (string msg)
 			{
 				Console.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " 1接收到消息：" + msg);
