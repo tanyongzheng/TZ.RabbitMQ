@@ -35,7 +35,10 @@ namespace TZ.RabbitMQ.Demo
                 for (int i = 0; i < 500; i++)
                 {
                     //producer.SendWorkQueues("hello"+i,queueName);
-                    producer.SendDelayQueues("这是延迟消息"+i,queueName,1000*10+i*1000);
+                    //producer.SendDelayQueues("这是延迟消息"+i,queueName,1000*10+i*1000);
+                    var isPublished = producer.SendDelayQueuesWithConfirmSelect("这是延迟消息"+i,queueName,1000*10+i*1000);
+                    //var isPublished = producer.SendWorkQueuesWithConfirmSelect("这是工作队列消息"+i,queueName);
+                    Console.WriteLine($"发送{(isPublished ? "成功" : "失败")}");
                 }
                 producer.Close();
             }
@@ -54,10 +57,11 @@ namespace TZ.RabbitMQ.Demo
                 consumer.SetDelayQueuesReceivedAction((msg) =>
                 {
                     Console.WriteLine(DateTime.Now.ToString("HH:mm:ss")+" 1接收到消息："+msg);
-                    Thread.Sleep(doSeconds*100*GetRandomNum(1,50));
-                    /*var str =  GetData().Result;
-                    Console.WriteLine(str);*/
+                    //Thread.Sleep(doSeconds*100*GetRandomNum(1,50));
+                    //var str =  GetData().Result;
+                    //Console.WriteLine(str);
                 },queueName,prefetchCount,consumerCount:20);
+
                 Console.WriteLine("启动完毕！");
             }
             Console.ReadKey();

@@ -66,7 +66,7 @@ namespace TZ.RabbitMQ.Client
                         arguments: null);
                     //不要同时给一个消费者推送多于prefetchCount个消息
                     Channel.BasicQos(prefetchSize: 0, prefetchCount: prefetchCount, global: false);
-                    var body = ea.Body;
+                    var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     //Console.WriteLine("处理消费者ConsumerTag:"+ea.ConsumerTag);
                     action(message);
@@ -116,7 +116,7 @@ namespace TZ.RabbitMQ.Client
                 {
                     //不要同时给一个消费者推送多于prefetchCount个消息
                     Channel.BasicQos(prefetchSize: 0, prefetchCount: prefetchCount, global: false);
-                    var body = ea.Body;
+                    var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     //Console.WriteLine("处理消费者ConsumerTag:" + ea.ConsumerTag);
                     action(message);
