@@ -55,17 +55,17 @@ namespace TZ.RabbitMQ.Client
             for (var i = 0; i < consumerCount; i++)
             {
                 var Channel = Connection.CreateModel();
+                Channel.QueueDeclare(queue: queueName,
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+                //不要同时给一个消费者推送多于prefetchCount个消息
+                Channel.BasicQos(prefetchSize: 0, prefetchCount: prefetchCount, global: false);
                 ChannelList.Add(Channel);
                 var consumer = new EventingBasicConsumer(Channel);
                 consumer.Received += (model, ea) =>
                 {
-                    Channel.QueueDeclare(queue: queueName,
-                        durable: true,
-                        exclusive: false,
-                        autoDelete: false,
-                        arguments: null);
-                    //不要同时给一个消费者推送多于prefetchCount个消息
-                    Channel.BasicQos(prefetchSize: 0, prefetchCount: prefetchCount, global: false);
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     //Console.WriteLine("处理消费者ConsumerTag:"+ea.ConsumerTag);
@@ -86,36 +86,38 @@ namespace TZ.RabbitMQ.Client
         /// <param name="prefetchCount">默认1</param>
         /// <param name="autoAck"></param>
         /// <param name="consumerCount"></param>
-        public void SetDelayQueuesReceivedAction(Action<string> action, string queueName,ushort prefetchCount=1, bool autoAck=false,int consumerCount=1)
+        public void SetDelayQueuesReceivedAction(Action<string> action, string queueName, ushort prefetchCount = 1,
+            bool autoAck = false, int consumerCount = 1)
         {
             if (prefetchCount < 1)
             {
                 throw new Exception("consumerCount must be greater than 1 !");
             }
+
             var exchangeName = queueName;
             var routingKey = queueName;
             for (int i = 0; i < consumerCount; i++)
             {
-                var Channel= Connection.CreateModel();
-                ChannelList.Add(Channel);
+                var Channel = Connection.CreateModel();
                 //定义队列
                 Channel.QueueDeclare(queue: queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
-            //定义交换机
-            Channel.ExchangeDeclare(exchange: exchangeName,
-                type: "direct");
-            //队列绑定到交换机
-            Channel.QueueBind(queue: queueName,
-                exchange: exchangeName,
-                routingKey: routingKey);
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+                //定义交换机
+                Channel.ExchangeDeclare(exchange: exchangeName,
+                    type: "direct");
+                //队列绑定到交换机
+                Channel.QueueBind(queue: queueName,
+                    exchange: exchangeName,
+                    routingKey: routingKey);
+                //不要同时给一个消费者推送多于prefetchCount个消息
+                Channel.BasicQos(prefetchSize: 0, prefetchCount: prefetchCount, global: false);
+                ChannelList.Add(Channel);
                 var consumer = new EventingBasicConsumer(Channel);
                 consumer.Received += (model, ea) =>
                 {
-                    //不要同时给一个消费者推送多于prefetchCount个消息
-                    Channel.BasicQos(prefetchSize: 0, prefetchCount: prefetchCount, global: false);
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     //Console.WriteLine("处理消费者ConsumerTag:" + ea.ConsumerTag);
