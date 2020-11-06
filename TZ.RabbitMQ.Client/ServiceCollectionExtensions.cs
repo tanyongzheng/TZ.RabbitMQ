@@ -34,5 +34,12 @@ namespace TZ.RabbitMQ.Client
             services.Configure<RabbitMQClientOptions>(configuration.GetSection("RabbitMQClient"));
             return services;
         }
+
+        public static IServiceCollection AddRabbitMQClient(this IServiceCollection services, Action<RabbitMQClientOptions> action)
+        {
+            services.AddOptions();
+            services.Configure(action);
+            return services;
+        }
     }
 }

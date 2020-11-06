@@ -108,7 +108,15 @@ namespace TZ.RabbitMQ.Demo
         static void ConfigureServices(IServiceCollection services)
         {
             #region MQ
-            services.AddRabbitMQClient(Configuration);
+            //services.AddRabbitMQClient(Configuration);
+            services.AddRabbitMQClient(opt =>
+            {
+                opt.Host = "127.0.0.1";
+                opt.VirtualHost = "/";
+                opt.Port = 15672;
+                opt.Username = "root";
+                opt.Password = "123456";
+            });
             #endregion
 
             #region 注入容器
